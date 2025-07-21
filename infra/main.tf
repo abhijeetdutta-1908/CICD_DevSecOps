@@ -16,6 +16,12 @@ data "aws_caller_identity" "current" {}
 # 1. Create ECR Repository
 resource "aws_ecr_repository" "app_repo" {
   name = var.ecr_repo_name
+
+  image_tag_mutability = "IMMUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
 }
 
 # 2. Create VPC for EKS
@@ -49,7 +55,7 @@ module "eks" {
   # Enable Public and Private endpoint access
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
-  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
+  cluster_endpoint_public_access_cidrs = ["49.42.179.153/32"]
 
   # --- CORRECTED ACCESS ENTRY STRUCTURE ---
   access_entries = {
