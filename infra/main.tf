@@ -27,9 +27,6 @@ resource "aws_ecr_repository" "app_repo" {
 }
 
 # 2. Create VPC for EKS
-# tfsec:ignore:aws-eks-no-public-cluster-access
-# tfsec:ignore:aws-eks-no-public-cluster-access-to-cidr
-# tfsec:ignore:aws-ec2-no-public-egress-sgr
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "5.9.0"
