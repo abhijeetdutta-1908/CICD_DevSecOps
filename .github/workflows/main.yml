@@ -72,8 +72,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT }}
       - name: Update deployment with new image tag
         run: |
           # The image name must match what you will put in deployment.yaml
