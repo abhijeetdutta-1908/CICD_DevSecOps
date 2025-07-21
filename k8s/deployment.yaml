@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vite-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vite-app
+  template:
+    metadata:
+      labels:
+        app: vite-app
+    spec:
+      containers:
+      - name: vite-app
+        # REPLACE THIS with your full ECR image URL. The tag 'latest' is a placeholder.
+        image: <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/my-vite-app:latest
+        ports:
+        - containerPort: 80
