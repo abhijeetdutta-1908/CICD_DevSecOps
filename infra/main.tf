@@ -11,8 +11,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-data "aws_caller_identity" "current" {}
-
 # 1. Create ECR Repository
 # tfsec:ignore:aws-ecr-repository-customer-key
 resource "aws_ecr_repository" "app_repo" {
@@ -41,6 +39,9 @@ module "vpc" {
   single_nat_gateway   = true
   enable_dns_hostnames = true
   enable_flow_log = true
+
+  create_flow_log_cloudwatch_log_group = true
+  create_flow_log_cloudwatch_iam_role  = true
 }
 
 data "aws_availability_zones" "available" {}
@@ -58,14 +59,14 @@ module "eks" {
   # Enable Public and Private endpoint access
   cluster_endpoint_private_access = true
   cluster_endpoint_public_access  = true
-  cluster_endpoint_public_access_cidrs = ["49.42.179.153/32"]
+  cluster_endpoint_public_access_cidrs = ["49.42.188.39/32"]
 
   cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
  
   # --- CORRECTED ACCESS ENTRY STRUCTURE ---
   access_entries = {
     ClusterAdmin = {
-      principal_arn = data.aws_caller_identity.current.arn,
+      principal_arn = "arn:aws:iam::520864642809:user/sit-user"
       policy_associations = {
         Admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy",

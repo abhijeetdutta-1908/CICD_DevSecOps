@@ -1,0 +1,113 @@
+/* General Styling */
+:root {
+  --nav-height: 44px; /* Standard height for Apple's navbar */
+  --text-color: #f5f5f7;
+  --bg-color: rgba(0, 0, 0, 0.8);
+  --hover-color: #fff;
+}
+
+/* Header element styling */
+.navbar {
+  position: fixed; /* Stick to the top of the viewport */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--nav-height);
+  background-color: var(--bg-color);
+  backdrop-filter: blur(20px); /* Creates the frosted glass effect */
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000; /* Ensures the navbar stays on top of other content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  font-family: "SF Pro Text", "Myriad Set Pro", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+.nav-container {
+  width: 100%;
+  max-width: 980px; /* Standard content width for Apple's site */
+  margin: 0 auto;
+  padding: 0 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/* Logo Styling */
+.nav-logo .logo {
+  width: 14px;
+  height: 18px;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
+.nav-logo .logo:hover {
+  opacity: 1;
+}
+
+/* Navigation Links Styling */
+.nav-links {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Space between the navigation links */
+
+}
+
+.nav-link-item {
+  color: rgb(172, 172, 172);
+  text-decoration: none;
+  padding: 0 8px;
+  transition: color 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-link-item:hover {
+  color: var(--hover-color);
+}
+
+/* Icons Styling */
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-icons .icon {
+  width: 15px;
+  height: auto;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-icons .icon:hover {
+  opacity: 1;
+}
+
+/* Media Query for Mobile Devices */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* Hide the main links on smaller screens */
+  }
+
+  .nav-container {
+    max-width: 100%;
+    padding: 0px 25px;
+    justify-content: space-between;
+  }
+  .nav-icons .icon {
+  width: 23px;
+  height: auto;
+  }
+  .nav-logo .logo {
+  width: 23px;
+  height: 25px;
+  }
+  
+  /* You would show the hamburger menu icon here if you implement it */
+}
