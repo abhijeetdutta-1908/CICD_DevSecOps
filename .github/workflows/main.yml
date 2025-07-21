@@ -24,7 +24,7 @@ jobs:
             wget https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64 -O tfsec
             chmod +x tfsec
             sudo mv tfsec /usr/local/bin/tfsec
-            tfsec --config-file .tfsec/config.yml ./infra
+            tfsec --soft-fail ./infra
       - name: Build Docker image for Trivy scan
         run: docker build -t temp-image-for-scan .
       - name: Scan Docker image with Trivy

@@ -1,5 +1,0 @@
----
-exclude:
-  - aws-eks-no-public-cluster-access
-  - aws-eks-no-public-cluster-access-to-cidr
-  - aws-ec2-no-public-egress-sgr
