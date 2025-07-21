@@ -19,9 +19,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Scan Terraform code with tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          working_directory: infra
+        run: |
+            curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | bash -s -- -b /usr/local/bin
+            tfsec ./infra
       - name: Build Docker image for Trivy scan
         run: docker build -t temp-image-for-scan .
       - name: Scan Docker image with Trivy
