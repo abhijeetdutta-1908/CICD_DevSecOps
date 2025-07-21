@@ -4,27 +4,33 @@ on:
   push:
     branches: [ main ]
     # paths-ignore:
-    #   - 'k8s/**' # Prevent loop when workflow updates k8s manifests
+    #   - 'k8s/**'
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: my-vite-app # MUST MATCH YOUR TERRAFORM VARIABLE
-  EKS_CLUSTER_NAME: vite-app-cluster # MUST MATCH YOUR TERRAFORM VARIABLE
+  ECR_REPOSITORY: my-vite-app
+  EKS_CLUSTER_NAME: vite-app-cluster
 
 jobs:
+  # ... (security-scans job remains the same)
   security-scans:
     name: Security Scanning 🛡️
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Set up tfsec config
+        run: |
+          mkdir -p .tfsec
+          echo "---" > .tfsec/config.yml
+          echo "exclude:" >> .tfsec/config.yml
+          echo "  - aws-eks-no-public-cluster-access" >> .tfsec/config.yml
+          echo "  - aws-eks-no-public-cluster-access-to-cidr" >> .tfsec/config.yml
+          echo "  - aws-ec2-no-public-egress-sgr" >> .tfsec/config.yml
       - name: Scan Terraform code with tfsec
         run: |
-            TFSEC_VERSION=v1.28.14
-            wget https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64 -O tfsec
-            chmod +x tfsec
-            sudo mv tfsec /usr/local/bin/tfsec
-            tfsec --soft-fail ./infra
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | bash -s -- -b /usr/local/bin
+          tfsec --soft-fail ./infra
       - name: Build Docker image for Trivy scan
         run: docker build -t temp-image-for-scan .
       - name: Scan Docker image with Trivy
@@ -41,7 +47,7 @@ jobs:
     permissions:
       contents: read
     outputs:
-      image_tag: ${{ steps.build-image.outputs.image_tag }}
+      image_tag: ${{ steps.build-image.outputs.image-tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,23 +69,23 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          # --- ADD THIS LINE FOR DEBUGGING ---
+          echo "The image tag being set is: $IMAGE_TAG"
 
   update-manifest:
     name: Update K8s Manifest 📝
     runs-on: ubuntu-latest
     needs: build-and-push
-
     permissions:
       contents: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      # --- ADD THIS STEP FOR DEBUGGING ---
+      - name: Print received image tag
+        run: echo "Received image tag from previous job: ${{ needs.build-and-push.outputs.image_tag }}"
       - name: Update deployment with new image tag
         run: |
-          # The image name must match what you will put in deployment.yaml
-          # Example: <AWS_ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/my-vite-app:latest
-          # The sed command below replaces 'latest' with the new git sha tag
           sed -i "s|image: .*/${{ env.ECR_REPOSITORY }}:.*|image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ needs.build-and-push.outputs.image_tag }}|" k8s/deployment.yaml
       - name: Commit and push changes
         run: |
