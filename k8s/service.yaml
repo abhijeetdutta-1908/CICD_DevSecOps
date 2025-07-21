@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vite-app-service
+spec:
+  # This tells AWS to create a public-facing load balancer
+  type: LoadBalancer
+
+  # This selector must match the labels on your pods in deployment.yaml
+  selector:
+    app: vite-app
+  
+  ports:
+    - protocol: TCP
+      # The port the public will connect to (standard web traffic)
+      port: 80
+      # The port on your container where the app is running
+      targetPort: 80

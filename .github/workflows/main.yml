@@ -3,8 +3,8 @@ name: DevSecOps CI Pipeline 🚀
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'k8s/**' # Prevent loop when workflow updates k8s manifests
+    # paths-ignore:
+    #   - 'k8s/**' # Prevent loop when workflow updates k8s manifests
 
 env:
   AWS_REGION: us-east-1

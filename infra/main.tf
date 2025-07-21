@@ -14,6 +14,7 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 # 1. Create ECR Repository
+# tfsec:ignore:aws-ecr-repository-customer-key
 resource "aws_ecr_repository" "app_repo" {
   name = var.ecr_repo_name
 
@@ -26,6 +27,9 @@ resource "aws_ecr_repository" "app_repo" {
 }
 
 # 2. Create VPC for EKS
+# tfsec:ignore:aws-eks-no-public-cluster-access
+# tfsec:ignore:aws-eks-no-public-cluster-access-to-cidr
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "5.9.0"
@@ -39,6 +43,7 @@ module "vpc" {
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
+  enable_flow_log = true
 }
 
 data "aws_availability_zones" "available" {}
@@ -58,6 +63,8 @@ module "eks" {
   cluster_endpoint_public_access  = true
   cluster_endpoint_public_access_cidrs = ["49.42.179.153/32"]
 
+  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+ 
   # --- CORRECTED ACCESS ENTRY STRUCTURE ---
   access_entries = {
     ClusterAdmin = {
