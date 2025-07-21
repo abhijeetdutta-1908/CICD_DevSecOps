@@ -29,7 +29,10 @@ jobs:
           echo "  - aws-ec2-no-public-egress-sgr" >> .tfsec/config.yml
       - name: Scan Terraform code with tfsec
         run: |
-          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install.sh | bash -s -- -b /usr/local/bin
+          TFSEC_VERSION=v1.28.14
+          wget https://github.com/aquasecurity/tfsec/releases/download/${TFSEC_VERSION}/tfsec-linux-amd64 -O tfsec
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/tfsec
           tfsec --soft-fail ./infra
       - name: Build Docker image for Trivy scan
         run: docker build -t temp-image-for-scan .
