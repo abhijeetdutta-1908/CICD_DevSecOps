@@ -14,7 +14,6 @@ spec:
     spec:
       containers:
       - name: vite-app
-        # REPLACE THIS with your full ECR image URL. The tag 'latest' is a placeholder.
         image: 520864642809.dkr.ecr.us-east-1.amazonaws.com/my-vite-app:716ee3d3dbdc45ed82a5ca14835c43d7b05cc7a4
         ports:
         - containerPort: 80

@@ -11,7 +11,7 @@ provider "aws" {
   region = var.aws_region
 }
 
-# 1. Create ECR Repository
+# ------------------------------------------------------------- Create ECR Repository----------------------------------------------------
 # tfsec:ignore:aws-ecr-repository-customer-key
 resource "aws_ecr_repository" "app_repo" {
   name = var.ecr_repo_name
@@ -24,7 +24,7 @@ resource "aws_ecr_repository" "app_repo" {
   force_delete = true   
 }
 
-# 2. Create VPC for EKS
+# ----------------------------------------------------------------------- Create VPC for EKS---------------------------------------------------------
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "5.9.0"
@@ -46,7 +46,7 @@ module "vpc" {
 
 data "aws_availability_zones" "available" {}
 
-# 3. Create EKS Cluster
+#------------------------------------------------------------------------Create EKS Cluster-----------------------------------------------------
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.10.0"
@@ -63,14 +63,12 @@ module "eks" {
 
   cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
  
-  # --- CORRECTED ACCESS ENTRY STRUCTURE ---
   access_entries = {
     ClusterAdmin = {
       principal_arn = "arn:aws:iam::520864642809:user/sit-user"
       policy_associations = {
         Admin = {
           policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy",
-          # THIS access_scope BLOCK WAS MISSING
           access_scope = {
             type = "cluster"
           }

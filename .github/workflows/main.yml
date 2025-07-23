@@ -14,7 +14,7 @@ env:
 jobs:
   # ... (security-scans job remains the same)
   security-scans:
-    name: Security Scanning 🛡️
+    name: Security Scanning 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -44,7 +44,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
 
   build-and-push:
-    name: Build & Push to ECR 🐳
+    name: Build & Push to ECR 
     runs-on: ubuntu-latest
     needs: security-scans
     permissions:
@@ -72,11 +72,10 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
-          # --- ADD THIS LINE FOR DEBUGGING ---
           echo "The image tag being set is: $IMAGE_TAG"
 
   update-manifest:
-    name: Update K8s Manifest 📝
+    name: Update K8s Manifest 
     runs-on: ubuntu-latest
     needs: build-and-push
     permissions:
@@ -84,7 +83,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      # --- ADD THIS STEP FOR DEBUGGING ---
       - name: Print received image tag
         run: |
           echo "Received image tag from previous job: ${{ needs.build-and-push.outputs.image_tag }}"
@@ -96,5 +94,5 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add k8s/deployment.yaml
-          git commit -m "Update image tag to ${{ needs.build-and-push.outputs.image_tag }}"
+          git commit -m "Updated image tag to ${{ needs.build-and-push.outputs.image_tag }}"
           git push
