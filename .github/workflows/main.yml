@@ -34,7 +34,7 @@ jobs:
           chmod +x tfsec
           sudo mv tfsec /usr/local/bin/tfsec
           tfsec --soft-fail ./infra
-      - name: Build Docker image for Trivy scan
+      - name: Build Docker image 
         run: docker build -t temp-image-for-scan .
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.20.0
