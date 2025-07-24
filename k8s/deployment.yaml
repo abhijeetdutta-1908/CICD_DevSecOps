@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: vite-app
-        image: 520864642809.dkr.ecr.us-east-1.amazonaws.com/my-vite-app:3503b1961ac682b3388fed0a65ff1d54d1adaf4e
+        image: 520864642809.dkr.ecr.us-east-1.amazonaws.com/my-vite-app:3ccc0ff4e1d381f759a3ab56155268b77fa4c6f7
         ports:
         - containerPort: 80
