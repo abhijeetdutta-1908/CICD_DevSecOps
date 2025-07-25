@@ -52,7 +52,7 @@ const Hero = () => {
           Buy
         </a>
         <p className="buy__text">
-          From $41.62/mo. or $999.00 </p>
+          From $41.62/mo. or $1000.00 </p>
       </div>
     </section>
   );
