@@ -6,3 +6,4 @@ infra/**
 
 !infra/main.tf
 !infra/variables.tf
+!infra/secret.yaml

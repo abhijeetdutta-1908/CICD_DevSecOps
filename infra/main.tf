@@ -119,7 +119,7 @@ resource "null_resource" "argocd_install" {
   }
 
   triggers = {
-    always_run = timestamp() # This ensures it runs every time
+    always_run = timestamp() 
   }
 }
 
