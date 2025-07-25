@@ -99,10 +99,13 @@ module "eks" {
 }
 
 resource "null_resource" "argocd_install" {
-  depends_on = [module.eks]
+  depends_on = [null_resource.wait_for_eks_ready]
 
   provisioner "local-exec" {
     command = <<EOT
+      echo "Waiting 60 seconds before installing ArgoCD to allow cluster to stabilize..."
+      sleep 60
+      aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}
       for i in 1 2 3; do
         helm repo add argo https://argoproj.github.io/argo-helm && \
         helm repo update && \
@@ -116,9 +119,10 @@ resource "null_resource" "argocd_install" {
   }
 
   triggers = {
-    cluster_name = module.eks.cluster_name
+    always_run = timestamp() # This ensures it runs every time
   }
 }
+
 resource "null_resource" "wait_for_eks_ready" {
   depends_on = [module.eks]
 
@@ -126,15 +130,16 @@ resource "null_resource" "wait_for_eks_ready" {
     command = <<EOT
       echo "Waiting for EKS API endpoint DNS to be resolvable..."
 
-      ENDPOINT=${module.eks.cluster_endpoint}
+      aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}
       for i in {1..20}; do
-        if nslookup $ENDPOINT >/dev/null 2>&1; then
-          echo "EKS API endpoint is resolvable."
+        if kubectl version --output=yaml; then
+          echo "Kubernetes API is accessible."
           exit 0
         fi
-        echo "Still waiting for endpoint ($ENDPOINT) to resolve... retrying in 15 seconds"
+        echo "Waiting for Kubernetes API... retrying in 15 seconds"
         sleep 15
       done
+
 
       echo "ERROR: EKS endpoint not resolvable after retries. Exiting."
       exit 1
@@ -153,6 +158,12 @@ resource "null_resource" "argocd_app_deploy" {
 
   provisioner "local-exec" {
     command = <<EOT
+      echo "Checking kubeconfig for correctness..."
+      if ! kubectl config view &>/dev/null; then
+        echo "ERROR: Malformed kubeconfig. Run 'aws eks update-kubeconfig' and fix the file." >&2
+        exit 1
+      fi
+
       for i in 1 2 3; do
         kubectl apply -f ../argocd-app.yaml --validate=false && break
         echo "kubectl apply failed. Retrying in 15 seconds..."
@@ -163,17 +174,19 @@ resource "null_resource" "argocd_app_deploy" {
   }
 
   triggers = {
-    manifest_sha1 = sha1(file("../argocd-app.yaml"))
+    always_run = timestamp()
   }
 }
+
 
 resource "null_resource" "argocd_port_forward" {
   depends_on = [null_resource.argocd_install]
 
   provisioner "local-exec" {
     command = <<EOT
-      echo "Port-forwarding Argo CD server on localhost:8080..."
-      nohup kubectl port-forward svc/argocd-server -n argocd 8080:443 >/dev/null 2>&1 &
+      aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}
+      echo "Port-forwarding Argo CD server on localhost:8081..."
+      nohup kubectl port-forward svc/argocd-server -n argocd 8081:443 >/dev/null 2>&1 &
     EOT
     interpreter = ["bash", "-c"]
   }
